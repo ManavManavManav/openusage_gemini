@@ -8,12 +8,12 @@ final class GeminiAuthStoreTests: XCTestCase {
             "~/.gemini/settings.json": #"{"authType":"oauth-personal"}"#
         ])
         let credentials = try GeminiAuthStore(files: files, environment: [:]).loadCredentials()
-        XCTAssertEqual(credentials, GeminiCredentials(accessToken: "access", refreshToken: "refresh", authType: "oauth-personal"))
+        XCTAssertEqual(credentials, GeminiCredentials(accessToken: "access", refreshToken: "refresh", authType: "oauth-personal", expiresAt: nil))
     }
 
     func testHasLocalCredentialsRecognizesAPIKeyWithoutTreatingItAsOAuth() {
         let store = GeminiAuthStore(files: FakeFiles(), environment: ["GEMINI_API_KEY": "key"])
-        XCTAssertTrue(store.hasLocalCredentials())
+        XCTAssertFalse(store.hasLocalCredentials())
         XCTAssertNil(try? store.loadCredentials())
     }
 }
@@ -34,7 +34,7 @@ final class GeminiUsageClientTests: XCTestCase {
         let http = GeminiRoutingHTTP { request in
             if request.url.host == "daily-cloudcode-pa.googleapis.com" { return HTTPResponse(statusCode: 503, headers: [:], body: Data()) }
             if request.url.path.contains("loadCodeAssist") { return HTTPResponse(statusCode: 200, headers: [:], body: Data(#"{"currentTier":{"name":"Free"}}"#.utf8)) }
-            return HTTPResponse(statusCode: 200, headers: [:], body: Data(#"{"buckets":[{"modelId":"gemini","remainingFraction":0.5}]}"#.utf8))
+            return HTTPResponse(statusCode: 200, headers: [:], body: Data(#"{"buckets":[{"modelId":"gemini-session","remainingFraction":0.5}]}"#.utf8))
         }
         let result = try await GeminiUsageClient(http: http).fetch(accessToken: "token")
         XCTAssertEqual(result.plan, "Free")
@@ -45,7 +45,7 @@ final class GeminiUsageClientTests: XCTestCase {
     func testAuthResponsesProduceUnavailableWithoutLeakingToken() async {
         let http = GeminiRoutingHTTP { _ in HTTPResponse(statusCode: 401, headers: [:], body: Data()) }
         do { _ = try await GeminiUsageClient(http: http).fetch(accessToken: "secret") ; XCTFail("expected error") }
-        catch let error as GeminiUsageError { XCTAssertEqual(error, .unavailable) }
+        catch let error as GeminiUsageError { XCTAssertEqual(error, .expired) }
         catch { XCTFail("unexpected error: \(error)") }
         XCTAssertFalse(http.requests.contains { String(decoding: $0.body ?? Data(), as: UTF8.self).contains("secret") })
     }

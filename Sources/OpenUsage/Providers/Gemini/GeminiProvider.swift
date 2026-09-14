@@ -7,7 +7,14 @@ import Foundation
  var widgetDescriptors: [WidgetDescriptor] { [.percent(id: "gemini.session", provider: provider, title: "Session", metricLabel: "Session").exportingLimit("session", unit: "percent"), .percent(id: "gemini.weekly", provider: provider, title: "Weekly", metricLabel: "Weekly").exportingLimit("weekly", unit: "percent"), .usageTrend(provider: provider)] }
  func hasLocalCredentials() async -> Bool { await loadOffMainActor { [authStore] in authStore.hasLocalCredentials() } }
  func refresh() async -> ProviderSnapshot {
-  do { guard let creds = try authStore.loadCredentials() else { throw GeminiUsageError.missingLogin }; let result = try await usageClient.fetch(accessToken: creds.accessToken); return .make(provider: provider, plan: result.plan, lines: result.lines, refreshedAt: Date()) }
-  catch { return .error(provider: provider, error: error) }
+  do {
+   guard let creds = try authStore.loadCredentials() else { throw authStore.settingsAuthType() == nil ? GeminiUsageError.missingLogin : GeminiUsageError.unsupportedAuthMode }
+   var token = creds.accessToken
+   if let expiry = creds.expiresAt, expiry.timeIntervalSinceNow < 60, let refresh = creds.refreshToken {
+    if case let .refreshed(accessToken, _) = await usageClient.refreshToken(refresh) { token = accessToken } else { throw GeminiUsageError.expired }
+   }
+   let result = try await usageClient.fetch(accessToken: token)
+   return .make(provider: provider, plan: result.plan, lines: result.lines, refreshedAt: Date())
+  } catch { AppLog.error(LogTag.plugin("gemini"), "refresh failed (\((error as? GeminiUsageError)?.errorCategory.rawValue ?? "other"))"); return .error(provider: provider, error: error) }
  }
 }
