@@ -44,6 +44,7 @@ enum ProviderCatalog {
             AntigravityProvider(),
             CopilotProvider(defaults: defaults),
             DevinProvider(),
+            GeminiProvider(),
             GrokProvider(),
             OllamaProvider(),
             OpenCodeProvider(),

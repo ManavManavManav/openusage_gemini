@@ -24,6 +24,8 @@ enum DefaultLayout {
 
         "devin.daily", "devin.weekly", "devin.extra",
 
+        "gemini.session", "gemini.weekly", "gemini.trend",
+
         "grok.weekly", "grok.trend",
         "grok.payAsYouGo", "grok.today", "grok.yesterday", "grok.last30",
 
@@ -58,7 +60,7 @@ enum DefaultLayout {
     ]
 
     /// Metrics pinned to the menu bar on first launch, so the app shows real numbers out of the box
-    /// instead of a lone icon. Two per provider for Antigravity, Claude, Codex, and Cursor — the
+    /// instead of a lone icon. Two per provider for Antigravity, Claude, Codex, Cursor, and Gemini — the
     /// per-provider cap (`LayoutStore.maxPinsPerProvider`). Filtered to the active registry by
     /// `LayoutStore`, like `metricIDs`.
     static let pinnedMetricIDs: [String] = [
@@ -69,7 +71,8 @@ enum DefaultLayout {
         "copilot.premium",
         "ollama.session", "ollama.weekly",
         "openrouter.credits",
-        "zai.session", "zai.weekly"
+        "zai.session", "zai.weekly",
+        "gemini.session", "gemini.weekly"
     ]
 
     /// Metrics placed in the per-provider On Demand section on a fresh install. This is
@@ -82,6 +85,7 @@ enum DefaultLayout {
         // pool pair and spend-history rows sit below the caret, matching the other local scanners.
         "antigravity.claude", "antigravity.claudeWeekly",
         "antigravity.today", "antigravity.yesterday", "antigravity.last30",
+        // Gemini's Session/Weekly meters and trend stay above the fold.
         // Claude's core meters (Session, Weekly, Fable, Extra, Usage Trend) stay above the fold;
         // optional Sonnet and spend-history rows sit below the caret.
         "claude.sonnet", "claude.today", "claude.yesterday", "claude.last30",
