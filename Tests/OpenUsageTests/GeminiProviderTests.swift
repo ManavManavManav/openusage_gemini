@@ -55,9 +55,9 @@ final class GeminiUsageClientTests: XCTestCase {
     func testGeminiDefaultsArePlacedVisibleAndPinned() {
         let provider = GeminiProvider()
         let store = LayoutStore(registry: .from([provider]), defaults: UserDefaults(suiteName: "GeminiLayout.\(UUID())")!, storageKey: "layout")
-        XCTAssertEqual(store.placed.map(\.descriptorID), ["gemini.session", "gemini.weekly", "gemini.trend"])
-        XCTAssertEqual(store.pinnedMetricIDs, ["gemini.session", "gemini.weekly"])
-        XCTAssertFalse(store.expandedMetricIDs.contains("gemini.session")); XCTAssertFalse(store.expandedMetricIDs.contains("gemini.weekly")); XCTAssertFalse(store.expandedMetricIDs.contains("gemini.trend"))
+        XCTAssertEqual(store.placed.map(\.descriptorID), ["gemini.pro", "gemini.flash", "gemini.trend"])
+        XCTAssertEqual(store.pinnedMetricIDs, ["gemini.pro", "gemini.flash"])
+        XCTAssertFalse(store.expandedMetricIDs.contains("gemini.pro")); XCTAssertFalse(store.expandedMetricIDs.contains("gemini.flash")); XCTAssertFalse(store.expandedMetricIDs.contains("gemini.trend"))
     }
 }
 

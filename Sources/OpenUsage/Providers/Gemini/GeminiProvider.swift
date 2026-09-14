@@ -6,7 +6,7 @@ import CryptoKit
  let authStore: GeminiAuthStore; let usageClient: GeminiUsageClient
  private let refreshCoordinator = GeminiRefreshCoordinator()
  init(authStore: GeminiAuthStore = GeminiAuthStore(), usageClient: GeminiUsageClient = GeminiUsageClient()) { self.authStore = authStore; self.usageClient = usageClient }
- var widgetDescriptors: [WidgetDescriptor] { [.percent(id: "gemini.session", provider: provider, title: "Session", metricLabel: "Session").exportingLimit("session", unit: "percent"), .percent(id: "gemini.weekly", provider: provider, title: "Weekly", metricLabel: "Weekly").exportingLimit("weekly", unit: "percent"), .usageTrend(provider: provider)] }
+ var widgetDescriptors: [WidgetDescriptor] { [.percent(id: "gemini.pro", provider: provider, title: "Pro", metricLabel: "Pro").exportingLimit("session", unit: "percent"), .percent(id: "gemini.flash", provider: provider, title: "Flash", metricLabel: "Flash").exportingLimit("weekly", unit: "percent"), .usageTrend(provider: provider)] }
  func hasLocalCredentials() async -> Bool { await loadOffMainActor { [authStore] in authStore.hasLocalCredentials() } }
  func refresh() async -> ProviderSnapshot {
   do {

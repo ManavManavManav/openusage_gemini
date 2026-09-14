@@ -24,7 +24,7 @@ enum DefaultLayout {
 
         "devin.daily", "devin.weekly", "devin.extra",
 
-        "gemini.session", "gemini.weekly", "gemini.trend",
+        "gemini.pro", "gemini.flash", "gemini.trend",
 
         "grok.weekly", "grok.trend",
         "grok.payAsYouGo", "grok.today", "grok.yesterday", "grok.last30",
@@ -72,7 +72,7 @@ enum DefaultLayout {
         "ollama.session", "ollama.weekly",
         "openrouter.credits",
         "zai.session", "zai.weekly",
-        "gemini.session", "gemini.weekly"
+        "gemini.pro", "gemini.flash"
     ]
 
     /// Metrics placed in the per-provider On Demand section on a fresh install. This is
