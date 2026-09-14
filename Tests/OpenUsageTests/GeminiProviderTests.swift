@@ -67,3 +67,18 @@ private final class GeminiRoutingHTTP: HTTPClient, @unchecked Sendable {
     init(handler: @escaping @Sendable (HTTPRequest) -> HTTPResponse) { self.handler = handler }
     func send(_ request: HTTPRequest) async throws -> HTTPResponse { requests.append(request); return handler(request) }
 }
+
+extension GeminiAuthStoreTests {
+    func testExpiryParsingISOAndEpochValues() throws {
+        let files = FakeFiles(["~/.gemini/oauth_creds.json": #"{"oauth":{"access_token":"a","expires_at":1700000000000}}"#])
+        XCTAssertEqual(try GeminiAuthStore(files: files, environment: [:]).loadCredentials()?.expiresAt?.timeIntervalSince1970, 1700000000)
+    }
+    func testSettingsAuthTypeVariantsRejectNonOAuth() throws {
+        let files = FakeFiles(["~/.gemini/settings.json": #"{"authType":"vertex-ai"}"#, "~/.gemini/oauth_creds.json": #"{"access_token":"a"}"#])
+        XCTAssertNil(try GeminiAuthStore(files: files, environment: [:]).loadCredentials())
+    }
+}
+
+extension GeminiUsageMapperTests {
+    func testNoMatchThrowsTypedError() { XCTAssertThrowsError(try GeminiUsageMapper.map(Data(#"{"buckets":[{"modelId":"gemini-3-pro-preview"}]}"#.utf8))) { XCTAssertTrue($0 is GeminiUsageMapper.Error) } }
+}

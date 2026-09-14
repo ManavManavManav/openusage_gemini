@@ -1,4 +1,5 @@
 import Foundation
+import CryptoKit
 
 @MainActor final class GeminiProvider: ProviderRuntime {
  let provider = Provider(id: "gemini", displayName: "Gemini", icon: .providerMark("gemini"))
@@ -22,11 +23,12 @@ import Foundation
 
 
 private actor GeminiRefreshCoordinator {
-    private var inFlight: Task<TokenRefreshOutcome, Never>?
+    private var inFlight: (key: String, task: Task<TokenRefreshOutcome, Never>)?
     func refresh(_ token: String, client: GeminiUsageClient) async -> TokenRefreshOutcome {
-        if let inFlight { return await inFlight.value }
+        let key = SHA256.hash(data: Data(token.utf8)).map { String(format: "%02x", $0) }.joined()
+        if let current = inFlight, current.key == key { return await current.task.value }
         let task = Task { await client.refreshToken(token) }
-        inFlight = task
+        inFlight = (key, task)
         let result = await task.value
         inFlight = nil
         return result
