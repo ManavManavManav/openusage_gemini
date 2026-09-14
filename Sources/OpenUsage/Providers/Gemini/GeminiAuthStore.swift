@@ -23,7 +23,7 @@ struct GeminiAuthStore: Sendable {
     }
 
     func settingsAuthType() -> String? {
-        guard let text = try? files.readTextIfPresent("\(Self.home)/settings.json"), let text,
+        guard let text = try? files.readTextIfPresent("\(Self.home)/settings.json") ?? nil,
               let data = text.data(using: .utf8), let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return nil }
         return (json["authType"] as? String) ?? (json["security"] as? [String: Any])?["authType"] as? String
     }

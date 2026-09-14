@@ -14,7 +14,6 @@ struct GeminiUsageClient: Sendable {
     func refreshToken(_ refresh: String) async -> TokenRefreshOutcome { await AntigravityUsageClient(http: http).refreshGoogleToken(refresh) }
 
     func fetch(accessToken: String) async throws -> (plan: String?, lines: [MetricLine]) {
-        let helper = AntigravityUsageClient(http: http)
         let body = ["metadata": ["ideType": "GEMINI_CLI", "platform": "DARWIN"]]
         let payload = try JSONSerialization.data(withJSONObject: body)
         for base in Self.bases {
