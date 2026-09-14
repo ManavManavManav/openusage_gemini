@@ -20,8 +20,8 @@ final class GeminiAuthStoreTests: XCTestCase {
 
 final class GeminiUsageMapperTests: XCTestCase {
     func testMapsBucketsAndResetTimesAndAllowsMissingWeekly() {
-        let json = #"{"buckets":[{"modelId":"gemini-session","remainingFraction":0.25,"resetTime":"2030-01-01T00:00:00Z"}]}"#
-        let lines = GeminiUsageMapper.map(Data(json.utf8))
+        let json = #"{"response":{"groups":[{"buckets":[{"bucketId":"gemini-5h","remainingFraction":0.25,"resetTime":"2030-01-01T00:00:00Z"}]}]}}"#
+        let lines = try! GeminiUsageMapper.map(Data(json.utf8))
         XCTAssertEqual(lines.count, 1)
         guard case let .progress(label, used, limit, _, reset, _, _) = lines[0] else { return XCTFail("expected progress") }
         XCTAssertEqual(label, "Session"); XCTAssertEqual(used, 75); XCTAssertEqual(limit, 100)
@@ -34,7 +34,7 @@ final class GeminiUsageClientTests: XCTestCase {
         let http = GeminiRoutingHTTP { request in
             if request.url.host == "daily-cloudcode-pa.googleapis.com" { return HTTPResponse(statusCode: 503, headers: [:], body: Data()) }
             if request.url.path.contains("loadCodeAssist") { return HTTPResponse(statusCode: 200, headers: [:], body: Data(#"{"currentTier":{"name":"Free"}}"#.utf8)) }
-            return HTTPResponse(statusCode: 200, headers: [:], body: Data(#"{"buckets":[{"modelId":"gemini-session","remainingFraction":0.5}]}"#.utf8))
+            return HTTPResponse(statusCode: 200, headers: [:], body: Data(#"{"response":{"groups":[{"buckets":[{"bucketId":"gemini-5h","remainingFraction":0.5}]}]}}"#.utf8))
         }
         let result = try await GeminiUsageClient(http: http).fetch(accessToken: "token")
         XCTAssertEqual(result.plan, "Free")

@@ -30,7 +30,7 @@ struct GeminiUsageClient: Sendable {
             guard let quota = try? await http.send(quotaReq) else { continue }
             if quota.statusCode == 401 || quota.statusCode == 403 { throw GeminiUsageError.expired }
             guard (200..<300).contains(quota.statusCode) else { continue }
-            return GeminiUsageResult(plan: plan, lines: GeminiUsageMapper.map(quota.body))
+            return GeminiUsageResult(plan: plan, lines: try GeminiUsageMapper.map(quota.body))
         }
         throw GeminiUsageError.unavailable
     }
